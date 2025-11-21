@@ -9,7 +9,7 @@ interface ConfigPanelProps {
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
   
-  // Helper to safely update config
+  // Helper to safely update config with proper typing
   const handleChange = (field: keyof GridConfig, value: any) => {
     setConfig({ ...config, [field]: value });
   };
