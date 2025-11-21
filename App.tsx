@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GridConfig, ClassRoster, FillDirection } from './types';
+import { GridConfig, ClassRoster } from './types';
 import { INITIAL_CONFIG } from './constants';
 import ConfigPanel from './components/ConfigPanel';
 import CsvUploader from './components/CsvUploader';
@@ -18,14 +18,19 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
+    // Validation: Check for Doc ID
     if (!config.docId) {
         setError("Please enter a Google Doc ID.");
         return;
     }
+
+    // Validation: Ensure at least one roster is uploaded
     if (rosters.length === 0) {
         setError("Please upload at least one CSV roster.");
         return;
     }
+    
+    // Clear previous errors and start loading
     setError(null);
     setIsGenerating(true);
 
