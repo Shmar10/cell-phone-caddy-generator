@@ -9,7 +9,6 @@ interface ConfigPanelProps {
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
   
-  // Helper to safely update config with proper typing
   const handleChange = (field: keyof GridConfig, value: any) => {
     setConfig({ ...config, [field]: value });
   };
@@ -22,7 +21,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Google Doc ID Input */}
+        {/* Google Doc ID */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
             <Link className="w-4 h-4" />
@@ -89,10 +88,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
 
         <hr className="border-slate-100" />
 
-        {/* Appearance Section (Themes & Landscape) */}
+        {/* Appearance */}
         <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Appearance</h3>
-            
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -110,7 +108,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
                         <option value="Black & White">Black & White</option>
                     </select>
                 </div>
-
                 <div className="flex items-end pb-3">
                     <label className="flex items-center gap-2 cursor-pointer">
                         <input 
@@ -127,10 +124,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
 
         <hr className="border-slate-100" />
 
-        {/* Student Placement Section (Random, Skip, Overflow) */}
+        {/* Student Placement */}
         <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Student Placement</h3>
-            
             <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                     <input 
@@ -145,7 +141,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
                     </span>
                 </label>
             </div>
-
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
                     <Scissors className="w-4 h-4" />
@@ -160,7 +155,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
                 />
                 <p className="text-[10px] text-slate-400">Comma-separated seat numbers to leave empty.</p>
             </div>
-
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
                     <FilePlus className="w-4 h-4" />
@@ -176,7 +170,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
                 </select>
             </div>
         </div>
-
       </div>
     </div>
   );
