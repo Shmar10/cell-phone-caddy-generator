@@ -56,12 +56,19 @@ export const generateGoogleAppsScript = async (
         - Loop ${config.columns} times to add cells.
         - AFTER loops, force column widths: loop cols 0 to ${config.columns - 1}, 'table.setColumnWidth(i, cellSide)'.
      d. Fill student names based on fill direction logic.
-     e. Styling:
-        - Add seat number (small text).
-        - Add student name (Bold).
-        - Set background color if occupied.
-        - Vertical align middle: 'cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER)'.
-        - CRITICAL FIX for Horizontal Align: Do NOT use 'cell.setHorizontalAlignment' (it does not exist). Instead, get the paragraph inside the cell and set alignment: 'cell.getChild(0).asParagraph().setAlignment(DocumentApp.HorizontalAlignment.CENTER)'.
+     e. Styling (Use EXACTLY this logic to avoid errors):
+        - Clear cell: 'cell.clear();'
+        - Set vertical alignment: 'cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);'
+        - Add Seat Number:
+          'var p1 = cell.appendParagraph(seatNumber.toString());'
+          'p1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
+          'p1.editAsText().setFontSize(9).setBold(false);'
+        - Add Student Name (if exists):
+          'var p2 = cell.appendParagraph(studentName);'
+          'p2.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
+          'p2.editAsText().setFontSize(11).setBold(true);'
+          'cell.setBackgroundColor(item.color);'
+        - Do NOT use 'getChild()', 'asCharacterStyle()', or 'setHorizontalAlignment()' on the cell itself.
   4. Add try/catch block for error logging.
   5. Output ONLY raw code.
   `;
