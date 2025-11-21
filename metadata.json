@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Classroom Layout Generator",
+  "description": "A tool for teachers to generate visual seating charts and rosters in Google Docs from CSV files using AI.",
+  "requestFramePermissions": []
+}
