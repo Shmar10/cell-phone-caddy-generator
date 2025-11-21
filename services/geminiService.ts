@@ -12,12 +12,11 @@ export const generateGoogleAppsScript = async (
 
   const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
-  // 2. Clean the Document ID (Fixes the "Document is missing" error)
-  // This handles cases where users paste "https://docs.google.com/document/d/XYZ/edit"
+  // 2. Clean the Document ID
   let cleanDocId = config.docId.trim();
   const urlMatch = cleanDocId.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (urlMatch) {
-    cleanDocId = urlMatch[1]; // Extracts just the ID part
+    cleanDocId = urlMatch[1]; 
   }
 
   const dataSummary = rosters.map(r => ({
@@ -61,8 +60,8 @@ export const generateGoogleAppsScript = async (
         - Add seat number (small text).
         - Add student name (Bold).
         - Set background color if occupied.
-        - Center align text in cells.
-        - Vertical align middle.
+        - Vertical align middle: 'cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER)'.
+        - CRITICAL FIX for Horizontal Align: Do NOT use 'cell.setHorizontalAlignment' (it does not exist). Instead, get the paragraph inside the cell and set alignment: 'cell.getChild(0).asParagraph().setAlignment(DocumentApp.HorizontalAlignment.CENTER)'.
   4. Add try/catch block for error logging.
   5. Output ONLY raw code.
   `;
