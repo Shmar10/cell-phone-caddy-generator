@@ -5,11 +5,11 @@ export const generateGoogleAppsScript = async (
   config: GridConfig,
   rosters: ClassRoster[]
 ): Promise<string> => {
-  if (!process.env.API_KEY) {
+  if (!import.meta.env.VITE_API_KEY) { 
     throw new Error("API Key is missing");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
 
   const dataSummary = rosters.map(r => ({
     fileName: r.filename,
