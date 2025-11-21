@@ -36,8 +36,9 @@ export const generateGoogleAppsScript = async (
   ${JSON.stringify(dataSummary, null, 2)}
 
   Requirements for the Script:
-  1. Open the Document by ID "${config.docId}" using 'DocumentApp.openById("${config.docId}")'.
-  2. For each item in the data:
+  1. Define the constant DOC_ID = "${config.docId}" at the top of the function.
+  2. Open the Document by ID using 'DocumentApp.openById(DOC_ID)'.
+  3. For each item in the data:
      a. Append a Page Break (except for the very first one if the doc is empty, but usually appending a page break first is safer to separate classes).
      b. Append a Paragraph with the 'fileName' as a Heading 1 title.
      c. Create the Grid/Table with SQUARE cells:
@@ -56,8 +57,8 @@ export const generateGoogleAppsScript = async (
         - If a student is assigned to that seat based on the fill logic, add their name (Bold text).
         - If a student is assigned, set the cell background color to the hex color provided in the data.
         - If no student is assigned but the cell exists in the grid (overflow), leave it empty but numbered.
-  3. Include error handling (try/catch) and logging.
-  4. The output must be ONLY the raw code, no markdown backticks, no explanation text.
+  4. Include error handling (try/catch) and logging.
+  5. The output must be ONLY the raw code, no markdown backticks, no explanation text.
   `;
 
   const response = await ai.models.generateContent({
