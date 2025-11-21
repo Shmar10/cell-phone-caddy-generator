@@ -55,22 +55,32 @@ export const generateGoogleAppsScript = async (
         - CRITICAL: Force square height: 'row.setMinimumHeight(cellSide)'.
         - Loop ${config.columns} times to add cells.
         - AFTER loops, force column widths: loop cols 0 to ${config.columns - 1}, 'table.setColumnWidth(i, cellSide)'.
-     d. Fill student names based on fill direction logic.
-     e. Styling (Use EXACTLY this logic to avoid errors):
-        - Clear cell content: 'cell.clear();'
+     
+     d. Prepare Data Grid (Logic Separation):
+        - Create a 2D array 'studentGrid' of size ${config.rows} x ${config.columns}.
+        - Fill 'studentGrid' with student names based on direction:
+          - If 'Top Left → Forward': Fill [0][0], [0][1]...
+          - If 'Bottom Right ← Backward': Fill [${config.rows-1}][${config.columns-1}], [${config.rows-1}][${config.columns-2}]... moving backwards to [0][0].
+     
+     e. Render Content (Iterate rows 'r' and cols 'c'):
+        - Calculate Seat Number: 'var seatNum = (r * ${config.columns}) + c + 1;' (Seat 1 is ALWAYS Top-Left).
+        - Get Student Name: 'var studentName = studentGrid[r][c];'
+        - Get cell: 'var cell = table.getCell(r, c);'
+        - Clear cell: 'cell.clear();'
         - Set vertical alignment: 'cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);'
         
-        // FIX: cell.clear() leaves 1 empty paragraph. Use it instead of adding a new one.
-        - 'var p1 = cell.getChild(0).asParagraph();' 
-        - 'p1.setText(seatNumber.toString());'
-        - 'p1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
-        - 'p1.editAsText().setFontSize(9).setBold(false);'
+        - Add Seat Number (Use existing ghost paragraph from clear()):
+          'var p1 = cell.getChild(0).asParagraph();'
+          'p1.setText(seatNum.toString());'
+          'p1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
+          'p1.editAsText().setFontSize(9).setBold(false);'
         
-        - Add Student Name (if exists):
+        - Add Student Name (if studentName exists):
           'var p2 = cell.appendParagraph(studentName);'
           'p2.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
           'p2.editAsText().setFontSize(11).setBold(true);'
           'cell.setBackgroundColor(item.color);'
+          
         - Do NOT use 'getChild()', 'asCharacterStyle()', or 'setHorizontalAlignment()' on the cell itself.
   4. Add try/catch block for error logging.
   5. Output ONLY raw code.
