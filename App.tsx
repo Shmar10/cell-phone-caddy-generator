@@ -18,7 +18,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
-    // Validation: Check for Doc ID
+    // Validation: Check for Doc ID (Required)
     if (!config.docId) {
         setError("Please enter a Google Doc ID.");
         return;
