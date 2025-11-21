@@ -20,8 +20,11 @@ const formatName = (rawName: string): string => {
   if (name.includes(',')) {
     const parts = name.split(',');
     if (parts.length >= 2) {
+      // If there are multiple commas (e.g. "Doe, Jr., John"), we assume standard "Last, First"
+      // where everything before the last comma might be the last name, or standard parsing.
+      // For simple robustness:
       const last = parts[0].trim().toUpperCase();
-      const first = toTitleCase(parts[1].trim());
+      const first = toTitleCase(parts.slice(1).join(' ').trim());
       return `${last}, ${first}`;
     }
     return name.toUpperCase();
@@ -40,43 +43,83 @@ const formatName = (rawName: string): string => {
  * Parses CSV content into a list of students
  */
 export const parseCSV = (content: string): Student[] => {
-  const lines = content.split(/\r?\n/);
+  // Filter empty lines
+  const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
   const students: Student[] = [];
+  const seenNames = new Set<string>();
 
-  for (const line of lines) {
-    const cleanLine = line.trim();
-    // Skip empty lines or headers that look like "Name" or "Student"
-    if (!cleanLine) continue;
-    if (['name', 'student', 'student name'].includes(cleanLine.toLowerCase())) continue;
+  if (lines.length === 0) return [];
 
-    // Simple handling: assume the first non-empty column is the name
-    // If there are commas in the CSV structure itself (not the name), we take the first token.
-    // However, many rosters are just a list of names. 
-    // Let's try to treat the whole line as the name if it doesn't look like complex data,
-    // otherwise take the first cell.
-    
-    let rawName = cleanLine;
-    // If it looks like a standard CSV row "id,name,grade", try to split
-    // This is a heuristic. For this app, we assume simple lists or we take the first column.
-    if (cleanLine.includes(',') && !cleanLine.includes('"')) {
-       // If line has commas, checks if it might be "Last, First" (2 parts) or columns
-       // "Doe, John" -> Keep as is.
-       // "123, John Doe" -> Split.
-       const parts = cleanLine.split(',');
-       // Heuristic: if the second part starts with a space, it might be "Last, First"
-       if (parts.length > 1 && !parts[1].startsWith(' ')) {
-         // Likely columns
-         rawName = parts[0] || parts[1]; // Fallback
-       }
+  // 1. Detect Headers
+  const headerLine = lines[0];
+  // Regex to split by comma but ignore commas inside quotes
+  const headers = headerLine.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+    .map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+
+  let firstNameIdx = -1;
+  let lastNameIdx = -1;
+  let nameIdx = -1;
+
+  headers.forEach((h, i) => {
+    const clean = h.replace(/[^a-z0-9]/g, '');
+    if (['firstname', 'first'].includes(clean)) firstNameIdx = i;
+    if (['lastname', 'last'].includes(clean)) lastNameIdx = i;
+    if (['name', 'student', 'studentname', 'displayname'].includes(clean)) nameIdx = i;
+  });
+
+  const hasSpecificHeaders = (firstNameIdx !== -1 && lastNameIdx !== -1);
+  const hasNameHeader = nameIdx !== -1;
+  
+  // Determine where data starts
+  // If we found headers, start at index 1.
+  // If we didn't find specific headers but the first line has "name" related text, skip it.
+  let startRow = 0;
+  if (hasSpecificHeaders || hasNameHeader || headerLine.toLowerCase().includes('name')) {
+    startRow = 1;
+  }
+
+  for (let i = startRow; i < lines.length; i++) {
+    const line = lines[i];
+    // Split line by comma, respecting quotes
+    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+      .map(p => p.trim().replace(/^"|"$/g, ''));
+
+    let formatted = '';
+
+    if (hasSpecificHeaders && parts[firstNameIdx] && parts[lastNameIdx]) {
+        // We have explicit columns for First and Last Name
+        const last = parts[lastNameIdx].trim().toUpperCase();
+        const first = toTitleCase(parts[firstNameIdx].trim());
+        formatted = `${last}, ${first}`;
+    } else {
+        // Fallback logic
+        let rawName = '';
+        if (hasNameHeader && parts[nameIdx]) {
+            rawName = parts[nameIdx];
+        } else {
+            // Heuristic for headerless files
+            // If it looks like an ID is in col 0, use col 1
+            if (parts.length > 1 && parts[0].match(/^\d+$/)) {
+                rawName = parts[1];
+            } else if (parts.length > 1) {
+                 // Default to first text-like column.
+                 rawName = parts[0]; 
+            } else {
+                 rawName = parts[0];
+            }
+        }
+        
+        if (!rawName) continue;
+        formatted = formatName(rawName);
     }
-    
-    // Remove quotes if present
-    rawName = rawName.replace(/^"|"$/g, '');
 
-    if (rawName) {
+    if (!formatted || !formatted.replace(/[^a-zA-Z]/g, '')) continue; // Skip empty or non-text
+
+    if (!seenNames.has(formatted)) {
+        seenNames.add(formatted);
         students.push({
-            original: cleanLine,
-            formatted: formatName(rawName)
+            original: line,
+            formatted: formatted
         });
     }
   }
