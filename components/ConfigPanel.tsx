@@ -1,6 +1,6 @@
 import React from 'react';
-import { GridConfig, FillDirection } from '../types';
-import { Settings, Link, LayoutGrid, ArrowRight } from 'lucide-react';
+import { GridConfig, FillDirection, Theme, OverflowBehavior } from '../types';
+import { Settings, Link, LayoutGrid, ArrowRight, Palette, Users, Scissors, FilePlus } from 'lucide-react';
 
 interface ConfigPanelProps {
   config: GridConfig;
@@ -10,7 +10,7 @@ interface ConfigPanelProps {
 const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
   
   // Helper to safely update config
-  const handleChange = (field: keyof GridConfig, value: string | number) => {
+  const handleChange = (field: keyof GridConfig, value: any) => {
     setConfig({ ...config, [field]: value });
   };
 
@@ -35,9 +35,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
             placeholder="Paste full Google Doc URL here..."
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
           />
-          <p className="text-xs text-slate-500">
-            Create a blank Google Doc and paste its link here.
-          </p>
         </div>
 
         <hr className="border-slate-100" />
@@ -54,16 +51,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
               min={1}
               max={8}
               value={config.rows}
-              onChange={(e) => {
-                // Enforce limits: Max 8 rows to fit on page
-                let val = parseInt(e.target.value) || 0;
-                if (val > 8) val = 8;
-                if (val < 1) val = 1;
-                handleChange('rows', val);
-              }}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              onChange={(e) => handleChange('rows', parseInt(e.target.value) || 1)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
             />
-            <p className="text-[10px] text-slate-400">Max 8</p>
           </div>
 
           <div className="space-y-2">
@@ -76,44 +66,117 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({ config, setConfig }) => {
               min={1}
               max={6}
               value={config.columns}
-              onChange={(e) => {
-                // Enforce limits: Max 6 cols to keep names readable
-                let val = parseInt(e.target.value) || 0;
-                if (val > 6) val = 6;
-                if (val < 1) val = 1;
-                handleChange('columns', val);
-              }}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+              onChange={(e) => handleChange('columns', parseInt(e.target.value) || 1)}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
             />
-            <p className="text-[10px] text-slate-400">Max 6</p>
           </div>
         </div>
 
-        {/* Fill Direction */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
             <ArrowRight className="w-4 h-4" />
             Fill Direction
           </label>
-          <div className="relative">
-            <select
-              value={config.fillDirection}
-              onChange={(e) => handleChange('fillDirection', e.target.value as FillDirection)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg appearance-none bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-sm"
-            >
-              <option value="Top Left → Forward">Top Left → Forward</option>
-              <option value="Bottom Right ← Backward">Bottom Right ← Backward</option>
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-          <p className="text-xs text-slate-500">
-            Choose "Bottom Right" for caddies where seat #1 is bottom-right.
-          </p>
+          <select
+            value={config.fillDirection}
+            onChange={(e) => handleChange('fillDirection', e.target.value as FillDirection)}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="Top Left → Forward">Top Left → Forward</option>
+            <option value="Bottom Right ← Backward">Bottom Right ← Backward</option>
+          </select>
         </div>
+
+        <hr className="border-slate-100" />
+
+        {/* Appearance Section (Themes & Landscape) */}
+        <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Appearance</h3>
+            
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Theme
+                    </label>
+                    <select
+                        value={config.theme}
+                        onChange={(e) => handleChange('theme', e.target.value as Theme)}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <option value="Standard">Standard</option>
+                        <option value="Pastel">Pastel</option>
+                        <option value="High Contrast">High Contrast</option>
+                        <option value="Black & White">Black & White</option>
+                    </select>
+                </div>
+
+                <div className="flex items-end pb-3">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            checked={config.landscape}
+                            onChange={(e) => handleChange('landscape', e.target.checked)}
+                            className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <span className="text-sm text-slate-700">Landscape Mode</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <hr className="border-slate-100" />
+
+        {/* Student Placement Section (Random, Skip, Overflow) */}
+        <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Student Placement</h3>
+            
+            <div className="space-y-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                        type="checkbox" 
+                        checked={config.randomize}
+                        onChange={(e) => handleChange('randomize', e.target.checked)}
+                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <span className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        Randomize Order
+                    </span>
+                </label>
+            </div>
+
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
+                    <Scissors className="w-4 h-4" />
+                    Skip Broken Pockets
+                </label>
+                <input
+                    type="text"
+                    value={config.skipSeats}
+                    onChange={(e) => handleChange('skipSeats', e.target.value)}
+                    placeholder="e.g., 13, 24, 30"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+                <p className="text-[10px] text-slate-400">Comma-separated seat numbers to leave empty.</p>
+            </div>
+
+            <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700 flex items-center gap-2">
+                    <FilePlus className="w-4 h-4" />
+                    Overflow Behavior
+                </label>
+                <select
+                    value={config.overflow}
+                    onChange={(e) => handleChange('overflow', e.target.value as OverflowBehavior)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+                >
+                    <option value="New Page">Create New Page</option>
+                    <option value="Waiting List">List at Bottom</option>
+                </select>
+            </div>
+        </div>
+
       </div>
     </div>
   );
