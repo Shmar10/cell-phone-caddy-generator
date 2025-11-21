@@ -57,12 +57,15 @@ export const generateGoogleAppsScript = async (
         - AFTER loops, force column widths: loop cols 0 to ${config.columns - 1}, 'table.setColumnWidth(i, cellSide)'.
      d. Fill student names based on fill direction logic.
      e. Styling (Use EXACTLY this logic to avoid errors):
-        - Clear cell: 'cell.clear();'
+        - Clear cell content: 'cell.clear();'
         - Set vertical alignment: 'cell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);'
-        - Add Seat Number:
-          'var p1 = cell.appendParagraph(seatNumber.toString());'
-          'p1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
-          'p1.editAsText().setFontSize(9).setBold(false);'
+        
+        // FIX: cell.clear() leaves 1 empty paragraph. Use it instead of adding a new one.
+        - 'var p1 = cell.getChild(0).asParagraph();' 
+        - 'p1.setText(seatNumber.toString());'
+        - 'p1.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
+        - 'p1.editAsText().setFontSize(9).setBold(false);'
+        
         - Add Student Name (if exists):
           'var p2 = cell.appendParagraph(studentName);'
           'p2.setAlignment(DocumentApp.HorizontalAlignment.CENTER);'
